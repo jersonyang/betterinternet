@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const scripts=[...fs.readFileSync(path.join(__dirname,'../index.html'),'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);const ctx=vm.createContext({console});for(let key of ['root.RF=','root.Capacity=','root.Planning31=']){let s=scripts.find(x=>x.includes(key));vm.runInContext(key==='root.Capacity='?s.split('function cleanRoomCap')[0]:s,ctx)}const P=ctx.Planning31,C=ctx.Capacity,RF=ctx.RF;let count=0;const test=(n,f)=>{f();console.log('PASS',n);count++};let input={down:300,up:300,students:200,exam:'ap'};
+test('AP minimum and remaining budget',()=>{let b=P.budget(input);assert.equal(b.down.need,200);assert.equal(b.up.need,40);assert.equal(b.down.balance,100);assert.equal(b.up.balance,260)});
+test('SAT/PSAT minimum both directions',()=>{let b=P.budget({...input,exam:'sat'});assert.equal(b.down.need,40);assert.equal(b.up.need,40)});
+test('Unknown upload remains unknown',()=>{let b=P.budget({...input,up:''});assert.equal(b.up.balance,null);assert.equal(P.rooms(b,30,.5,2,.3).both,null)});
+test('Competing traffic and allowance',()=>{let b=P.budget({...input,otherDown:25,margin:.2});assert.equal(b.down.balance,15)});
+test('No protected capacity when exam exceeds link',()=>{let b=P.budget({...input,students:350});assert.equal(b.down.balance,-50);assert.equal(P.rooms(b,30,.5,2,.3).both,0)});
+test('Classroom count respects upload',()=>{let b=P.budget({...input,up:43});assert.equal(P.rooms(b,30,.5,2,.3).both,0)});
+test('30-device classroom scenarios',()=>{let b=P.budget(input);assert.equal(P.rooms(b,30,.2,2,.3).both,8);assert.equal(P.rooms(b,30,.5,2,.3).both,3);assert.equal(P.rooms(b,30,1,2,.3).both,1)});
+test('Unknown count is not zero',()=>assert.equal(P.budget({...input,students:''}).down.need,null));
+const room=(id,wifi=0,wired=100)=>({id,name:id,x:0,y:0,w:10,h:10,wireless:wifi,wired,material:'Drywall',environment:'open'}),ap={id:'ap',name:'AP',x:5,y:5,band:5,gen:'5',power:18,gain:3};const floor=(id,rooms,aps=[])=>({floorId:id,floorName:id,rooms,aps,jacks:[],n:3,target:-67});const fs2=[floor('1',[room('r')]),floor('2',[room('r')])];let settings={scenario:'apexam',down:150,up:100};let calc=(f=fs2,s=settings,p=false,per=[])=>P.school(f,s,per,p,{},RF,C);
+test('Two floors share one WAN budget',()=>{let c=calc();assert.equal(c.total.internetDown,200);assert.equal(c.wan.downRatio,200/150);assert.equal(c.rooms[0].deliveredDown,.75);assert.equal(c.rooms[1].deliveredDown,.75)});
+test('RF does not borrow AP from another floor',()=>{let c=calc([floor('1',[room('r',30,0)],[ap]),floor('2',[room('r',30,0)])]);assert.equal(c.rooms.find(r=>r.floorId==='2').unserved,30);assert.equal(c.rooms.find(r=>r.floorId==='2').deliveredDown,0)});
+test('Additional traffic added once, not per floor',()=>assert.equal(calc(fs2,{...settings,otherDown:100}).wan.downRatio,2));
+test('Proposal WAN permission',()=>{assert.equal(calc(fs2,{...settings,proposalDown:500},true,[]).wan.down,150);assert.equal(calc(fs2,{...settings,proposalDown:500},true,[5]).wan.down,500)});
+test('Unknown WAN excluded from estimate, flagged',()=>{let c=calc(fs2,{scenario:'apexam'});assert.equal(c.wan.downRatio,null);assert.equal(c.rooms[0].wanDownKnown,false)});
+test('Zero WAN handled',()=>{let c=calc(fs2,{...settings,down:0});assert.equal(c.rooms[0].deliveredDown,0);assert.equal(c.wan.downRatio,Infinity)});
+console.log(count+' tests passed');
