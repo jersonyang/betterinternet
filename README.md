@@ -1,8 +1,4 @@
-# BetterInternet — Draft 1
-Better coverage. Better opportunities.
-
-Open index.html in a browser, or upload the contents of this directory to a GitHub repository and import it in Vercel using the Other framework preset, with no build command. No dependencies or API keys are required.
-
-The demo is a fictional single-floor school. Click rooms to edit endpoint counts and wall materials. Select equipment to edit coordinates, or drag movable markers. Fixed mode locks all AP locations and disables additions. Limited mode locks existing APs and permits proposed additions. Flexible mode allows alternative layouts. Network jack markers are editable records of existing infrastructure, not physical changes. Modes are planning assumptions, not authorization to change real equipment.
-
-Save locally uses browser localStorage. Reset restores the demo. Coverage, capacity and recommendations are future milestones; this release makes no RF performance predictions. Browser-based interaction tests passed for mode switching, coordinate editing, AP additions and device steppers. Persistence and public deployment are not verified in this environment.
+# BetterInternet Draft 2.5
+Static website. Deploy the contents of this folder to Vercel; /studio is rewritten to index.html. Standalone HTML uses hash navigation when opened as a local file.
+Room multi-selection: Shift-click, drag from empty canvas, or Ctrl/Cmd+A in Plan. Delete or Backspace removes selected rooms, retaining equipment. Project > Clear floor plan removes all rooms and equipment, with undo. Capacity and internet bandwidth remain unevaluated.
+Tested via Chromium set_content: all ten template buttons on empty and demo plans (expansion accepted when needed), bulk edit, Delete/Backspace, undo, clear, room type change. Direct navigation and reload blocked by browser environment; deployed routing and persistence not verified.
