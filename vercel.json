@@ -1,1 +1,1 @@
-{"cleanUrls":true}
+{"rewrites":[{"source":"/studio","destination":"/index.html"}]}
