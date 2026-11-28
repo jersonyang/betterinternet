@@ -5,6 +5,15 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid
         && request.auth.token.email_verified == true;
     }
+    function activeAccount(uid) {
+      return !exists(/databases/$(database)/documents/users/$(uid)/state/deleting);
+    }
+    match /users/{uid}/state/deleting {
+      allow get: if owner(uid);
+      allow create, update: if owner(uid) && request.resource.data.keys().hasOnly(['deleting'])
+        && request.resource.data.deleting == true;
+      allow list, delete: if false;
+    }
     function validSchool() {
       let d = request.resource.data;
       return d.keys().hasAll(['schema', 'name', 'payload', 'revision', 'updatedAt'])
@@ -15,8 +24,8 @@ service cloud.firestore {
     }
     match /users/{uid}/schools/{schoolId} {
       allow get, list: if owner(uid);
-      allow create: if owner(uid) && validSchool() && request.resource.data.revision == 1;
-      allow update: if owner(uid) && validSchool()
+      allow create: if owner(uid) && activeAccount(uid) && validSchool() && request.resource.data.revision == 1;
+      allow update: if owner(uid) && activeAccount(uid) && validSchool()
         && request.resource.data.revision == resource.data.revision + 1;
       allow delete: if owner(uid);
     }

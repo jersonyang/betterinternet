@@ -1,6 +1,6 @@
-# Final 1.0 preview
+# Final 1.1 preview
 
-Accounts and cloud saving foundation. See [SETUP.md](SETUP.md) for setup, security and limitations. Existing Draft 3.7 engineering documentation follows.
+See [SETUP.md](SETUP.md) for deployment, new account features, security, and remaining limitations. This preview adds direct renaming, layout templates, school/floor duplication and transfers, local image tracing, visible cloud saving, account deletion, saved proposals, and email/print summaries. Existing Draft 3.7 engineering documentation follows.
 
 # BetterInternet — Draft 3.7
 

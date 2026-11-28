@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/studio","destination":"/index.html"}]}
+{"framework":null,"buildCommand":"node build.mjs","outputDirectory":"dist","installCommand":"","rewrites":[{"source":"/studio","destination":"/index.html"}],"headers":[{"source":"/auth-action.html","headers":[{"key":"Referrer-Policy","value":"no-referrer"},{"key":"Cache-Control","value":"no-store"}]}]}
