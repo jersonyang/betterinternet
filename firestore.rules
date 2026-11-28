@@ -29,6 +29,33 @@ service cloud.firestore {
         && request.resource.data.revision == resource.data.revision + 1;
       allow delete: if owner(uid);
     }
+    function verifiedRecipient(data) {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email == data.email;
+    }
+    function validShare() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['kind','email','role','payload','name','revision','updatedAt'])
+        && d.keys().hasOnly(['kind','email','role','payload','name','revision','updatedAt'])
+        && d.kind in ['proposal','project'] && d.role in ['view','edit']
+        && (d.kind == 'project' || d.role == 'view')
+        && d.email is string && d.email.size() <= 254
+        && d.name is string && d.name.size() <= 70
+        && d.payload is string && d.payload.size() <= 700000
+        && d.revision is int && d.revision > 0 && d.updatedAt == request.time;
+    }
+    match /users/{uid}/shares/{shareId} {
+      allow get: if (owner(uid) || verifiedRecipient(resource.data)) && activeAccount(uid);
+      allow list: if owner(uid);
+      allow create: if owner(uid) && activeAccount(uid) && validShare()
+        && request.resource.data.revision == 1;
+      allow update: if activeAccount(uid) && validShare()
+        && resource.data.kind == 'project'
+        && (owner(uid) || (verifiedRecipient(resource.data) && resource.data.role == 'edit'))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['payload','revision','updatedAt'])
+        && request.resource.data.revision == resource.data.revision + 1;
+      allow delete: if owner(uid);
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }
