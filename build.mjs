@@ -16,6 +16,6 @@ if(raw?.trim()){
   config=Object.fromEntries(keys.filter(k=>Object.hasOwn(parsed,k)).map(k=>[k,parsed[k]]));
 }else if(process.env.VERCEL==='1')console.warn('FIREBASE_WEB_CONFIG not configured; deploying guest-only.');
 rmSync(dist,{recursive:true,force:true});mkdirSync(dist,{recursive:true});
-for(const name of ['index.html','accounts.js','cloud-sdk.js','studio11.js','studio12.js','studio12.css','pdf14.js','trace12.js','optimizer12.worker.js','auth-action.html','favicon.svg'])copyFileSync(join(root,name),join(dist,name));
+for(const name of ['index.html','accounts.js','cloud-sdk.js','studio11.js','studio12.js','studio12.css','pdf14.js','trace12.js','optimizer12.worker.js','auth-action.html','privacy.html','favicon.svg'])copyFileSync(join(root,name),join(dist,name));
 writeFileSync(join(dist,'firebase-config.js'),'// Public Firebase web configuration, generated at build time.\nexport const firebaseConfig = '+JSON.stringify(config,null,2)+';\n');
 console.log('BetterInternet static build ready. Firebase '+(raw?.trim()?'configured.':'disabled (guest mode).'));
